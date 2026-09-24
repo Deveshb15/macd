@@ -1,0 +1,45 @@
+{
+  "path": "/tmp/macd-an",
+  "overview": false,
+  "entries": [
+    {
+      "name": "z",
+      "path": "/tmp/macd-an/z",
+      "size": 3350528,
+      "is_dir": true
+    },
+    {
+      "name": "a",
+      "path": "/tmp/macd-an/a",
+      "size": 3350528,
+      "is_dir": true
+    },
+    {
+      "name": "top.txt",
+      "path": "/tmp/macd-an/top.txt",
+      "size": 3,
+      "is_dir": false,
+      "last_access": "2026-09-24T10:40:02Z"
+    },
+    {
+      "name": "empty",
+      "path": "/tmp/macd-an/empty",
+      "size": 0,
+      "is_dir": true
+    }
+  ],
+  "large_files": [
+    {
+      "name": "one.bin",
+      "path": "/tmp/macd-an/z/one.bin",
+      "size": 3350528
+    },
+    {
+      "name": "big.bin",
+      "path": "/tmp/macd-an/a/big.bin",
+      "size": 3145728
+    }
+  ],
+  "total_size": 6701059,
+  "total_files": 4
+}
