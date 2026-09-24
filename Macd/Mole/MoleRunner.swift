@@ -142,13 +142,13 @@ nonisolated final class SpawnedProcess: Sendable {
         var fds: [Int32] = [0, 0]
         guard pipe(&fds) == 0 else { throw MoleError.launchFailed(errno) }
 
-        var attributes = posix_spawnattr_t(nil as OpaquePointer?)
+        var attributes: posix_spawnattr_t? = nil
         posix_spawnattr_init(&attributes)
         defer { posix_spawnattr_destroy(&attributes) }
         posix_spawnattr_setflags(&attributes, Int16(POSIX_SPAWN_SETPGROUP | POSIX_SPAWN_CLOEXEC_DEFAULT))
         posix_spawnattr_setpgroup(&attributes, 0)
 
-        var actions = posix_spawn_file_actions_t(nil as OpaquePointer?)
+        var actions: posix_spawn_file_actions_t? = nil
         posix_spawn_file_actions_init(&actions)
         defer { posix_spawn_file_actions_destroy(&actions) }
         posix_spawn_file_actions_addopen(&actions, 0, "/dev/null", O_RDONLY, 0)
