@@ -18,7 +18,7 @@ final class TemperatureReader: TemperatureSource {
     private let copyProperty: ServiceCopyProperty
     private let copyEvent: ServiceCopyEvent
     private let getFloatValue: EventGetFloatValue
-    private let client: OpaquePointer
+    nonisolated(unsafe) private let client: OpaquePointer
 
     /// Returns `nil` when the private symbols are unavailable on this macOS version.
     init?() {
@@ -85,7 +85,7 @@ final class TemperatureReader: TemperatureSource {
     }
 }
 
-enum TemperatureValidator {
+nonisolated enum TemperatureValidator {
     /// Rejects the zeros and garbage values some sensors report.
     static func isPlausible(_ celsius: Double) -> Bool {
         celsius.isFinite && celsius >= 1 && celsius <= 150

@@ -1,17 +1,14 @@
 import XCTest
 @testable import Macd
 
+@MainActor
 final class MoleRunnerTests: XCTestCase {
-    private var directory: URL!
-
-    override func setUpWithError() throws {
-        directory = FileManager.default.temporaryDirectory.appendingPathComponent("macd-runner-\(UUID().uuidString)")
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-    }
-
-    override func tearDownWithError() throws {
-        try? FileManager.default.removeItem(at: directory)
-    }
+    private lazy var directory: URL = {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("macd-runner-\(UUID().uuidString)")
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        addTeardownBlock { try? FileManager.default.removeItem(at: url) }
+        return url
+    }()
 
     private func stub(_ body: String) throws -> MoleRunner {
         let url = directory.appendingPathComponent("mole")

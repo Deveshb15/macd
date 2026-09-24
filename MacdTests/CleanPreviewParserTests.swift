@@ -1,6 +1,7 @@
 import XCTest
 @testable import Macd
 
+@MainActor
 final class CleanPreviewParserTests: XCTestCase {
     private func fixture() throws -> [String] {
         let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mole-clean-dry-run-1.49.2", withExtension: "txt"))

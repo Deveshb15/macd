@@ -1,32 +1,32 @@
 import Foundation
 
-struct CleanItem: Equatable, Sendable {
+nonisolated struct CleanItem: Equatable, Sendable {
     let label: String
     /// `nil` when Mole will clean it but did not report a size.
     var bytes: Int64?
     var itemCount: Int?
 }
 
-struct CleanCategory: Equatable, Sendable {
+nonisolated struct CleanCategory: Equatable, Sendable {
     let name: String
     var items: [CleanItem]
 
     var totalBytes: Int64 { items.reduce(0) { $0 + ($1.bytes ?? 0) } }
 }
 
-struct SkippedItem: Equatable, Sendable {
+nonisolated struct SkippedItem: Equatable, Sendable {
     let label: String
     let reason: String
 }
 
-struct CleanPreview: Equatable, Sendable {
+nonisolated struct CleanPreview: Equatable, Sendable {
     var categories: [CleanCategory]
     var skipped: [SkippedItem]
 
     var totalBytes: Int64 { categories.reduce(0) { $0 + $1.totalBytes } }
 }
 
-enum CleanPreviewError: Error, Equatable {
+nonisolated enum CleanPreviewError: Error, Equatable {
     case unrecognizedOutput
 }
 

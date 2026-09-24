@@ -2,7 +2,7 @@ import Foundation
 
 /// Display formatting for the menu bar and panel. Sizes are decimal (1 GB = 10⁹ bytes),
 /// matching Finder and Mole.
-enum Formatters {
+nonisolated enum Formatters {
     static let unavailable = "—"
 
     static func bytes(_ value: Int64) -> String {

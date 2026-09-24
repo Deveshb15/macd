@@ -1,6 +1,7 @@
 import XCTest
 @testable import Macd
 
+@MainActor
 final class MetricsMonitorTests: XCTestCase {
     private let memory = MemoryUsage(usedBytes: 40_000_000_000, totalBytes: 64_000_000_000)
     private let disk = DiskUsage(freeBytes: 180_000_000_000, totalBytes: 1_000_000_000_000)

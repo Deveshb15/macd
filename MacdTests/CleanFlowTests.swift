@@ -13,7 +13,7 @@ final class FakeMoleRunner: MoleCommandRunning, @unchecked Sendable {
     }
 
     func run(_ arguments: [String], timeout: Duration, onLine: @escaping @Sendable (String) -> Void) async throws -> MoleRunResult {
-        lock.lock(); _calls.append(arguments); lock.unlock()
+        lock.withLock { _calls.append(arguments) }
         if delay > .zero {
             do { try await Task.sleep(for: delay) } catch { throw MoleError.cancelled }
         }
@@ -27,6 +27,7 @@ final class FakeMoleRunner: MoleCommandRunning, @unchecked Sendable {
     }
 }
 
+@MainActor
 final class CleanFlowTests: XCTestCase {
     private let previewLines = [
         "◎ System caches need sudo, run sudo -v && mo clean --dry-run for full preview",

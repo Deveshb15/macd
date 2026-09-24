@@ -2,12 +2,12 @@ import Darwin
 import Foundation
 import Synchronization
 
-struct MoleRunResult: Sendable {
+nonisolated struct MoleRunResult: Sendable {
     let exitCode: Int32
     let output: [String]
 }
 
-enum MoleError: Error, Equatable, LocalizedError {
+nonisolated enum MoleError: Error, Equatable, LocalizedError {
     case notInstalled
     case launchFailed(Int32)
     case failed(exitCode: Int32, tail: [String])

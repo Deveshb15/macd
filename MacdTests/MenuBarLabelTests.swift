@@ -1,6 +1,7 @@
 import XCTest
 @testable import Macd
 
+@MainActor
 final class MenuBarLabelTests: XCTestCase {
     private let snapshot = MetricsSnapshot(
         cpuTemperature: nil,

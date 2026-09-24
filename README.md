@@ -28,7 +28,7 @@ This produces a signed, notarized, and stapled `build/macd.dmg`.
 
 ## Updating Mole
 
-1. Change `MOLE_VERSION` and `TARBALL_SHA256` in `scripts/fetch-mole.sh`.
+1. Change `MOLE_VERSION`, `MOLE_COMMIT`, and `SOURCE_TREE_SHA256` in `scripts/fetch-mole.sh`.
 2. Run `scripts/fetch-mole.sh`.
 3. Capture a fresh `mole clean --dry-run` and `mole analyze -json` output into
    `MacdTests/Fixtures/`, then run the tests. The cleanup preview parses Mole's text

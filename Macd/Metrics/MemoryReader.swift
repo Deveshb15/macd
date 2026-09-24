@@ -15,7 +15,9 @@ struct MemoryReader: MemorySource {
         }
         guard result == KERN_SUCCESS else { return nil }
 
-        let pageSize = UInt64(vm_kernel_page_size)
+        var hostPageSize: vm_size_t = 0
+        guard host_page_size(mach_host_self(), &hostPageSize) == KERN_SUCCESS else { return nil }
+        let pageSize = UInt64(hostPageSize)
         let internalPages = UInt64(stats.internal_page_count)
         let purgeablePages = UInt64(stats.purgeable_count)
         let appPages = internalPages > purgeablePages ? internalPages - purgeablePages : 0

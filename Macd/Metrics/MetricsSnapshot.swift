@@ -1,6 +1,6 @@
 import Foundation
 
-struct MemoryUsage: Equatable, Sendable {
+nonisolated struct MemoryUsage: Equatable, Sendable {
     let usedBytes: UInt64
     let totalBytes: UInt64
 
@@ -9,7 +9,7 @@ struct MemoryUsage: Equatable, Sendable {
     }
 }
 
-struct DiskUsage: Equatable, Sendable {
+nonisolated struct DiskUsage: Equatable, Sendable {
     let freeBytes: Int64
     let totalBytes: Int64
 
@@ -19,7 +19,7 @@ struct DiskUsage: Equatable, Sendable {
 }
 
 /// One reading of every metric. A `nil` field means that metric could not be read.
-struct MetricsSnapshot: Equatable, Sendable {
+nonisolated struct MetricsSnapshot: Equatable, Sendable {
     var cpuTemperature: Double?
     var memory: MemoryUsage?
     var disk: DiskUsage?

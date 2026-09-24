@@ -1,6 +1,7 @@
 import XCTest
 @testable import Macd
 
+@MainActor
 final class LowSpaceNotifierTests: XCTestCase {
     private let gb: Int64 = 1_000_000_000
 

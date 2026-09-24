@@ -1,6 +1,7 @@
 import XCTest
 @testable import Macd
 
+@MainActor
 final class FormattersTests: XCTestCase {
     func testBytes() {
         XCTAssertEqual(Formatters.bytes(Int64(18_000_000_000)), "18 GB")

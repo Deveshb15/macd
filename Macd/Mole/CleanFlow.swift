@@ -1,7 +1,7 @@
 import Foundation
 import Observation
 
-struct CleanResult: Equatable, Sendable {
+nonisolated struct CleanResult: Equatable, Sendable {
     let freedBytes: Int64
     let skipped: [SkippedItem]
     let wasCancelled: Bool

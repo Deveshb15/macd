@@ -1,20 +1,16 @@
 import XCTest
 @testable import Macd
 
+@MainActor
 final class AppSettingsTests: XCTestCase {
-    private var suiteName: String!
-    private var defaults: UserDefaults!
-
-    override func setUp() {
-        super.setUp()
-        suiteName = "macd.tests.\(UUID().uuidString)"
-        defaults = UserDefaults(suiteName: suiteName)
-    }
-
-    override func tearDown() {
-        defaults.removePersistentDomain(forName: suiteName)
-        super.tearDown()
-    }
+    private let suiteName = "macd.tests.\(UUID().uuidString)"
+    private lazy var defaults: UserDefaults = {
+        let defaults = UserDefaults(suiteName: suiteName)!
+        addTeardownBlock { [suiteName] in
+            UserDefaults(suiteName: suiteName)?.removePersistentDomain(forName: suiteName)
+        }
+        return defaults
+    }()
 
     func testFreshInstallDefaults() {
         let settings = AppSettings(defaults: defaults)

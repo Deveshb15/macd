@@ -1,6 +1,7 @@
 import XCTest
 @testable import Macd
 
+@MainActor
 final class AnalyzeDecoderTests: XCTestCase {
     func testRealFixtureDecodesAndSumsToTotal() throws {
         let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mole-analyze-1.49.2", withExtension: "json"))

@@ -32,8 +32,8 @@ final class LowSpaceNotifier {
 
 /// Posts the low-space notification and routes its tap back to the app.
 final class NotificationCenterBridge: NSObject, UNUserNotificationCenterDelegate {
-    static let categoryID = "low-space"
-    static let cleanActionID = "free-up-space"
+    nonisolated static let categoryID = "low-space"
+    nonisolated static let cleanActionID = "free-up-space"
 
     private(set) var isAuthorized = false
     var onFreeUpSpace: () -> Void = {}
@@ -75,10 +75,9 @@ final class NotificationCenterBridge: NSObject, UNUserNotificationCenterDelegate
     ) {
         let isLowSpace = response.notification.request.content.categoryIdentifier == Self.categoryID
         let dismissed = response.actionIdentifier == UNNotificationDismissActionIdentifier
-        Task { @MainActor in
-            if isLowSpace, !dismissed { self.onFreeUpSpace() }
-            completionHandler()
-        }
+        completionHandler()
+        guard isLowSpace, !dismissed else { return }
+        Task { @MainActor in self.onFreeUpSpace() }
     }
 
     nonisolated func userNotificationCenter(

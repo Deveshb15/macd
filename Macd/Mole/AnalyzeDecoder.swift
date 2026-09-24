@@ -1,6 +1,6 @@
 import Foundation
 
-struct DiskEntry: Equatable, Sendable, Identifiable {
+nonisolated struct DiskEntry: Equatable, Sendable, Identifiable {
     let name: String
     let path: String
     let size: Int64
@@ -9,7 +9,7 @@ struct DiskEntry: Equatable, Sendable, Identifiable {
     var id: String { path }
 }
 
-struct DiskListing: Equatable, Sendable {
+nonisolated struct DiskListing: Equatable, Sendable {
     let path: String
     let totalSize: Int64
     /// Largest first; equal sizes sort by name.
