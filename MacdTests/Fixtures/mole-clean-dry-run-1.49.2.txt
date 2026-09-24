@@ -1,0 +1,172 @@
+
+Clean Your Mac
+
+Dry Run Mode, Preview only, no deletions
+
+◎ System caches need sudo, run sudo -v && mo clean --dry-run for full preview
+
+⚙ Apple Silicon | Free space: 998.88GB
+✓ Whitelist: 21 core patterns active
+  ↳ /Users/tester/Library/Caches/ms-playwright*
+  ↳ /Users/tester/.cache/huggingface*
+  ↳ /Users/tester/.m2/repository/*
+  ↳ /Users/tester/.gradle/caches/*
+  ↳ /Users/tester/.gradle/daemon/*
+  ↳ /Users/tester/.ollama/models/*
+  ↳ /Users/tester/Library/Caches/com.nssurge.surge-mac/*
+  ↳ /Users/tester/Library/Application Support/com.nssurge.surge-mac/*
+  ↳ /Users/tester/Library/Caches/org.R-project.R/R/renv/*
+  ↳ /Users/tester/Library/Caches/pypoetry/virtualenvs*
+  ↳ /Users/tester/Library/Caches/JetBrains*
+  ↳ /Users/tester/Library/Caches/com.jetbrains.toolbox*
+  ↳ /Users/tester/Library/Caches/tealdeer/tldr-pages
+  ↳ /Users/tester/Library/Application Support/JetBrains*
+  ↳ /Users/tester/Library/Caches/com.apple.finder
+  ↳ /Users/tester/Library/Mobile Documents*
+  ↳ /Users/tester/Library/Caches/com.apple.FontRegistry*
+  ↳ /Users/tester/Library/Caches/com.apple.spotlight*
+  ↳ /Users/tester/Library/Caches/com.apple.Spotlight*
+  ↳ /Users/tester/Library/Caches/CloudKit*
+
+➤ User essentials
+  → User app cache · 82 items, 14.94GB dry
+  → User app logs · 19 items, 8.7MB dry
+
+➤ App caches
+  → Wallpaper agent cache · 139.4MB dry
+  → Media analysis cache · 3 items, 90.8MB dry
+  → Media analysis temp files · 4 items, 7.5MB dry
+  → App Store cache · 2 items, 17.6MB dry
+  → Wallpaper aerials temp files · 0B dry
+  → Geod temp files · 87 items, 19.3MB dry
+  → macOS Help system cache · 8 items, 35.6MB dry
+  → Maps geo tile cache · 7 items, 64.4MB dry
+  → Memoji picker cache · 40.4MB dry
+  → Music album art cache · 15.8MB dry
+  → CoreDevice service cache · 604.5MB dry
+  → Apple Media Services cache · 6 items, 8.4MB dry
+  → Parsecd cache · 15 items, 17.1MB dry
+  → Apple Python cache · 201KB dry
+  → Sandboxed app caches · 8KB dry
+  → Group Containers logs/caches · 395.6MB dry
+
+➤ Browsers
+  → Chrome cache · 744.0MB dry
+  → Chrome GPU cache · 6 items, 5.8MB dry
+  → Chrome component CRX cache · 8 items, 26.3MB dry
+  → Chrome Dawn cache · 56 items, 12.8MB dry
+  → Chrome optimization guide models · 10 items, 50.9MB dry
+  → Chrome Service Worker, would clean 46.0MB, 0 protected
+  → GoogleUpdater CRX cache · 2 items, 752.6MB dry
+  → GoogleUpdater old files · 2 items, 2.1MB dry
+  → Brave cache · 6 items, 5.68GB dry
+  → Brave Service Worker, would clean 2.12GB, 0 protected
+  → Brave Service Worker, would clean 237.0MB, 0 protected
+  → Brave Service Worker, would clean 322.4MB, 0 protected
+  → Brave Service Worker, would clean 327.8MB, 0 protected
+  → Brave Service Worker, would clean 4.8MB, 0 protected
+  → Chrome old versions · 1 dirs, 745.2MB dry
+
+➤ Cloud & Office
+  ✓ Nothing to clean
+
+➤ Developer tools
+  → npm cache · would clean
+  → npm cache directory · 3 items, 11.85GB dry
+  → npm npx cache · 32 items, 3.11GB dry
+  → npm logs · 17 items, 2.2MB dry
+  → npm prebuilds · 3 items, 4.6MB dry
+  → pnpm cache · would clean
+  → Corepack cache · would clean
+  → bun cache · would clean
+  → pip cache · would clean
+  → uv cache · would clean
+  → Go cache · would clean
+  → Rust cargo cache · 93.0MB dry
+  ⊙ Docker unused data · review with docker system df
+  → Kubernetes cache · 2 items, 193KB dry
+  → Next.js build cache · 3 items, 220.4MB dry
+  → Next.js build cache · 288.4MB dry
+  → Next.js build cache · 322.0MB dry
+  → Next.js build cache · 329.0MB dry
+  → Next.js build cache · 2 items, 389.0MB dry
+  → Next.js build cache · 173.7MB dry
+  → Next.js build cache · 5 items, 158.6MB dry
+  → Next.js build cache · 3 items, 82.1MB dry
+  → Next.js build cache · 4KB dry
+  → Next.js build cache · 193KB dry
+  ⊙ Android NDK versions · 5 found (Android Studio → SDK Manager)
+  → Xcode runtime volumes · 1 unused, 4 in use
+  • Runtime volumes total: 8.71GB (unused 0B, in-use 8.71GB)
+    IN_USE 8.71GB · /Library/Developer/CoreSimulator/Cryptex/Images
+    UNUSED 0B · /Library/Developer/CoreSimulator/Cryptex/Caches
+    IN_USE 0B · /Library/Developer/CoreSimulator/Volumes/iOS_23F77
+    IN_USE 0B · /Library/Developer/CoreSimulator/Volumes/iOS_23A343
+    IN_USE 0B · /Library/Developer/CoreSimulator/Volumes/iOS_22D8075
+  → Gradle notifications cache · 0B dry
+  → Claude Code old version · 214.2MB dry
+  → Deno cache · 17 items, 18.6MB dry
+  → Figma cache · 4 items, 181KB dry
+  → Sentry crash reports · 7 items, 29KB dry
+  → Claude cache · 2 items, 35.7MB dry
+  → Claude code cache · 3 items, 5.3MB dry
+  → Claude GPU cache · 5 items, 1.6MB dry
+  → Claude Dawn cache · 5 items, 558KB dry
+  → Claude WebGPU cache · 5 items, 558KB dry
+  → Claude sentry cache · 2 items, 19KB dry
+  → OpenCode cache · 8 items, 28.0MB dry
+  → VS Code logs · 45KB dry
+  → VS Code cache · 2 items, 741KB dry
+  → VS Code data cache · 12.1MB dry
+  → Obsolete Cursor extension · 1.3MB dry
+  → Obsolete Cursor extension · 49.9MB dry
+  → Homebrew cache · 39 items, 101.6MB dry
+  → Homebrew lock files · 9 items, 0B dry
+  → Homebrew · would cleanup
+
+➤ Apps & utilities
+  → Slack cache · 2 items, 416.1MB dry
+  → Claude desktop cache · 4 items, 181KB dry
+  → Claude logs · 9 items, 207KB dry
+  → Figma cache · 4 items, 181KB dry
+  → Spotify cache · 50 items, 496.5MB dry
+  → Apple TV cache · 6 items, 5.8MB dry
+  → Zsh completion cache · 50KB dry
+  → Warp cache · 2 items, 0B dry
+  → Warp log · 29KB dry
+  → Warp Sentry crash reports · 2 items, 4KB dry
+
+➤ Virtualization
+  ✓ Nothing to clean
+
+➤ Application Support
+  → Application Support logs/caches · 1.64GB dry
+
+➤ App leftovers
+  → Would clean 1 items, about 0.2MB
+
+➤ Apple Silicon updates
+  ✓ Nothing to clean
+
+➤ Device backups & firmware
+  ✓ Nothing to clean
+
+➤ Time Machine
+  ✓ Nothing to clean
+
+➤ Large files
+  ⊙ Xcode archives · 8.89GB · ~/Library/Developer/Xcode/Archives
+  ⊙ Docker Desktop data · 92.35GB · ~/Library/Containers/com.docker.docker/Data
+
+➤ Project artifacts
+  ✓ Nothing to clean
+
+
+======================================================================
+Dry run complete - no changes made
+Potential space: 47.11GB | Items: 1370 | Categories: 6
+Skipped while active: Simulator, Xcode, Codex
+Detailed file list: /Users/tester/.config/mole/clean-list.txt
+Use mo clean --whitelist to add protection rules
+======================================================================
+
