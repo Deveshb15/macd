@@ -119,7 +119,7 @@ nonisolated enum Classifier {
         for _ in 0..<3 {
             let directories = tree.sortedChildren(of: node, by: .allocated).filter { tree.isDirectory($0) }
             for child in directories {
-                if let category = category(ofName: tree.names[child]) { return category }
+                if let named = category(ofName: tree.names[child]) { return named }
                 if isGitStore(tree, child) { return .git }
             }
             guard let largest = directories.first else { return nil }
