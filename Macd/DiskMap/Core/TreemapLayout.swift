@@ -35,13 +35,10 @@ nonisolated struct FilterMatch: Sendable {
     init(query: String, tree: DiskTree, metric: SizeMetric) {
         self.query = query
         let needle = query.lowercased()
+        let matches = tree.names.map { $0.lowercased().contains(needle) }
         var values = [UInt64](repeating: 0, count: tree.count)
-        var matches = [Bool](repeating: false, count: tree.count)
         for id in stride(from: tree.count - 1, through: 0, by: -1) {
-            if tree.names[id].lowercased().contains(needle) {
-                matches[id] = true
-                values[id] = tree.value(of: id, metric: metric)
-            }
+            if matches[id] { values[id] = tree.value(of: id, metric: metric) }
             if let up = tree.parentOf(id), !matches[up] {
                 values[up] += values[id]
             }
