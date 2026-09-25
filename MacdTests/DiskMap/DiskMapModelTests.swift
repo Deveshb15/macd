@@ -87,18 +87,15 @@ final class DiskMapModelTests: XCTestCase {
     // Covers AE7.
     func testTrashRescansAndReportsMeasuredGain() async {
         let remover = FakeRemover()
-        var free: Int64 = 10_000_000_000
-        let (model, scanner) = makeModel([home(), home(withBig: false)], remover: remover, free: { free })
+        // Free space reads: before removal, then after the rescan.
+        var readings: [Int64] = [10_000_000_000, 22_000_000_000]
+        let (model, scanner) = makeModel([home(), home(withBig: false)], remover: remover, free: { readings.removeFirst() })
         await scanned(model)
         model.toggleMark(model.tree!.node(at: "/Users/me/big")!)
         XCTAssertEqual(model.markedBytes, 12 * gb)
 
         model.openReview()
-        free = 10_000_000_000
-        let task = Task { await model.moveToTrash() }
-        await Task.yield()
-        free = 22_000_000_000
-        await task.value
+        await model.moveToTrash()
 
         XCTAssertEqual(remover.calls.first?.mode, .trash)
         XCTAssertEqual(remover.calls.first?.targets, ["/Users/me/big"])
@@ -106,6 +103,7 @@ final class DiskMapModelTests: XCTestCase {
         guard case .finished(let report) = model.review else { return XCTFail("\(model.review)") }
         XCTAssertEqual(report.removedCount, 1)
         XCTAssertEqual(report.markedBytes, 12 * gb)
+        XCTAssertEqual(report.freedBytes, 12_000_000_000)
         XCTAssertTrue(report.failures.isEmpty)
         XCTAssertNil(model.tree!.node(at: "/Users/me/big"))
     }
