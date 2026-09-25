@@ -32,20 +32,25 @@ enum Signal {
 }
 
 /// A thin proportion bar. Neutral unless it signals a problem.
+///
+/// Uses concrete label colours rather than `.primary`: on the menu bar panel's vibrant
+/// material, hierarchical styles blend into each other and the fill disappears.
 struct Meter: View {
     let fraction: Double
     var signal: Signal = .normal
 
+    private static let label = Color(nsColor: .labelColor)
+
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
-                Capsule().fill(.primary.opacity(0.1))
+                Capsule().fill(Self.label.opacity(0.14))
                 Capsule()
-                    .fill(signal == .normal ? AnyShapeStyle(.primary.opacity(0.55)) : AnyShapeStyle(signal.color))
-                    .frame(width: max(3, geometry.size.width * min(max(fraction, 0), 1)))
+                    .fill(signal == .normal ? Self.label.opacity(0.85) : signal.color)
+                    .frame(width: max(4, geometry.size.width * min(max(fraction, 0), 1)))
             }
         }
-        .frame(height: 4)
+        .frame(height: 5)
         .animation(.easeOut(duration: 0.3), value: fraction)
     }
 }
