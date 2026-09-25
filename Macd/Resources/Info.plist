@@ -26,6 +26,12 @@
 	<string>15.0</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>mac'd measures the size of files on your Desktop to show what is using disk space.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>mac'd measures the size of files in Documents to show what is using disk space.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>mac'd measures the size of files in Downloads to show what is using disk space.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Bundles Mole (GPL-3.0) by tw93.</string>
 </dict>

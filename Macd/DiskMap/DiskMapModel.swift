@@ -267,10 +267,13 @@ final class DiskMapModel {
         do {
             try marks.toggle(target, planner: planner)
             markMessage = nil
-        } catch .refused(let reason) {
-            markMessage = "Can't mark this: \(reason)."
-        } catch .insideMarked(let ancestor) {
-            markMessage = "Already going with \(planner.tree.names[ancestor]). Unmark it first."
+        } catch {
+            switch error {
+            case .refused(let reason):
+                markMessage = "Can't mark this: \(reason)."
+            case .insideMarked(let ancestor):
+                markMessage = "Already going with \(planner.tree.names[ancestor]). Unmark it first."
+            }
         }
     }
 

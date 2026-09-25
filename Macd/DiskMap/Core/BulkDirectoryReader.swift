@@ -35,11 +35,16 @@ nonisolated enum BulkDirectoryReader {
 
         var request = attrlist()
         request.bitmapcount = u_short(ATTR_BIT_MAP_COUNT)
-        request.commonattr = attrgroup_t(
-            ATTR_CMN_RETURNED_ATTRS | ATTR_CMN_NAME | ATTR_CMN_DEVID | ATTR_CMN_OBJTYPE
-                | ATTR_CMN_MODTIME | ATTR_CMN_FLAGS | ATTR_CMN_FILEID | ATTR_CMN_ERROR
-        )
-        request.fileattr = attrgroup_t(ATTR_FILE_LINKCOUNT | ATTR_FILE_TOTALSIZE | ATTR_FILE_ALLOCSIZE)
+        let common: [attrgroup_t] = [
+            attrgroup_t(ATTR_CMN_RETURNED_ATTRS), attrgroup_t(ATTR_CMN_NAME), attrgroup_t(ATTR_CMN_DEVID),
+            attrgroup_t(ATTR_CMN_OBJTYPE), attrgroup_t(ATTR_CMN_MODTIME), attrgroup_t(ATTR_CMN_FLAGS),
+            attrgroup_t(ATTR_CMN_FILEID), attrgroup_t(ATTR_CMN_ERROR),
+        ]
+        let file: [attrgroup_t] = [
+            attrgroup_t(ATTR_FILE_LINKCOUNT), attrgroup_t(ATTR_FILE_TOTALSIZE), attrgroup_t(ATTR_FILE_ALLOCSIZE),
+        ]
+        request.commonattr = common.reduce(0, |)
+        request.fileattr = file.reduce(0, |)
 
         let buffer = UnsafeMutableRawPointer.allocate(byteCount: bufferSize, alignment: 16)
         defer { buffer.deallocate() }
