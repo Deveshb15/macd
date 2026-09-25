@@ -12,7 +12,7 @@ final class AppModel {
     let settings: AppSettings
     let metrics: MetricsMonitor
     let cleanFlow: CleanFlow
-    let analyze: AnalyzeModel
+    let diskMap: DiskMapModel
     let moleVersion: String?
 
     /// Set when something outside a view (a notification tap) needs a window opened.
@@ -27,7 +27,7 @@ final class AppModel {
         metrics = MetricsMonitor(temperature: TemperatureReader(), memory: MemoryReader(), disk: disk)
         let runner = MoleRunner.bundled()
         cleanFlow = CleanFlow(runner: runner, freeSpace: { disk.diskUsage()?.freeBytes })
-        analyze = AnalyzeModel(runner: runner)
+        diskMap = DiskMapModel()
         moleVersion = runner.flatMap { runner in
             try? String(contentsOf: runner.scriptURL.deletingLastPathComponent().appendingPathComponent("VERSION"), encoding: .utf8)
                 .trimmingCharacters(in: .whitespacesAndNewlines)

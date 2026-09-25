@@ -5,6 +5,12 @@ and frees up space with a preview you can read before anything is deleted. Clean
 disk analysis are powered by a bundled copy of [Mole](https://github.com/tw93/Mole), so no
 terminal or Homebrew is needed.
 
+**Disk Map** (Analyze Disk… in the menu) is a treemap of your home folder, modeled on
+[disktree](https://github.com/tobi/disktree): colour shows the kind of data, a hatch shows
+space you can get back, and you can mark items, review them, and move them to the Trash or
+delete them permanently. Allow access to Desktop, Documents, and Downloads when macOS asks,
+and grant Full Disk Access to include folders like Mail.
+
 Requires macOS 15 or later. CPU temperature is supported on Apple Silicon.
 
 ## Develop

@@ -28,6 +28,9 @@ targets:
         LSUIElement: true
         LSApplicationCategoryType: public.app-category.utilities
         NSHumanReadableCopyright: "Bundles Mole (GPL-3.0) by tw93."
+        NSDesktopFolderUsageDescription: "mac'd measures the size of files on your Desktop to show what is using disk space."
+        NSDocumentsFolderUsageDescription: "mac'd measures the size of files in Documents to show what is using disk space."
+        NSDownloadsFolderUsageDescription: "mac'd measures the size of files in Downloads to show what is using disk space."
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.devesh.macd

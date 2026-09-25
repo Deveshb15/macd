@@ -7,8 +7,9 @@ struct TreemapCanvas: View {
     @Binding var zoom: ZoomController
     /// The tile under the pointer, when the pointer moved more recently than the keyboard.
     @Binding var hovered: Int?
+    /// The canvas size, shared with the window for keyboard zoom.
+    @Binding var size: CGSize
 
-    @State private var size: CGSize = .zero
     @State private var frameInWindow: CGRect = .zero
     @State private var monitor: Any?
 

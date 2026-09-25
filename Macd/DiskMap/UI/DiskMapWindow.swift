@@ -7,6 +7,7 @@ struct DiskMapWindow: View {
     @State private var zoom = ZoomController()
     @State private var hovered: Int?
     @State private var showingHelp = false
+    @State private var canvasSize: CGSize = .zero
     @FocusState private var filterFocused: Bool
     @FocusState private var mapFocused: Bool
 
@@ -57,7 +58,7 @@ struct DiskMapWindow: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         default:
-            TreemapCanvas(model: model, zoom: $zoom, hovered: $hovered)
+            TreemapCanvas(model: model, zoom: $zoom, hovered: $hovered, size: $canvasSize)
                 .overlay(alignment: .top) {
                     if model.phase == .scanning { ScanBanner(model: model) }
                 }
@@ -102,7 +103,6 @@ struct DiskMapWindow: View {
         return .handled
     }
 
-    private var canvasSize: CGSize { CGSize(width: 800, height: 600) }
     private var center: CGPoint { CGPoint(x: canvasSize.width / 2, y: canvasSize.height / 2) }
 
     private func keyName(_ press: KeyPress) -> String {

@@ -12,9 +12,10 @@ struct MacdApp: App {
         }
         .menuBarExtraStyle(.window)
 
-        Window("Analyze Disk", id: WindowID.analyze) {
-            AnalyzeWindow(model: model.analyze)
+        Window("Disk Map", id: WindowID.analyze) {
+            DiskMapWindow(model: model.diskMap)
         }
+        .defaultSize(width: 1400, height: 900)
         .defaultLaunchBehavior(.suppressed)
 
         Window("Free Up Space", id: WindowID.cleanup) {
