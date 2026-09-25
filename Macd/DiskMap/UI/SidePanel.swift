@@ -8,8 +8,12 @@ struct SidePanel: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                if let tree = model.tree, let node = hovered ?? model.selection {
-                    SelectionSection(model: model, tree: tree, node: node)
+                // Hovering a tile shows that tile. Hovering nothing falls back to the
+                // folder currently open, not the last thing that was hovered or clicked —
+                // so moving the pointer off the map always shows where you are, one level
+                // up from whatever's on screen.
+                if let tree = model.tree {
+                    SelectionSection(model: model, tree: tree, node: hovered ?? model.viewRoot)
                 }
                 if let tree = model.tree, !model.worthALook.isEmpty {
                     WorthALookSection(model: model, tree: tree)
