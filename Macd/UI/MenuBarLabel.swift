@@ -25,7 +25,12 @@ struct MenuBarLabel: View {
                 showMemory: model.settings.showMemory,
                 showDisk: model.settings.showDisk
             ) {
-                Text(text).monospacedDigit()
+                HStack(spacing: 3) {
+                    if (model.metrics.snapshot.cpuTemperature ?? 0) >= 80 {
+                        Image(systemName: "flame.fill")
+                    }
+                    Text(text).monospacedDigit()
+                }
             } else {
                 Image(systemName: "gauge.with.dots.needle.33percent")
             }

@@ -22,7 +22,6 @@ struct SidePanel: View {
             .padding(16)
         }
         .frame(width: 300)
-        .background(Palette.panel)
     }
 }
 
@@ -235,8 +234,7 @@ private struct DiskSection: View {
                 Text(model.marks.isEmpty ? "Mark items to review" : "Review \(model.marks.nodes.count) marked…")
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Palette.amber)
+            .buttonStyle(PrimaryGlassButtonStyle())
             .disabled(model.marks.isEmpty)
         }
     }

@@ -69,7 +69,8 @@ struct TreemapCanvas: View {
         for tile in tiles {
             let rect = zoom.transformed(tile.rect)
             guard rect.intersects(bounds), rect.width >= 1, rect.height >= 1 else { continue }
-            let path = Path(rect)
+            let radius = min(5, min(rect.width, rect.height) / 5)
+            let path = Path(roundedRect: rect, cornerRadius: radius, style: .continuous)
 
             guard let node = tile.node else {
                 context.fill(path, with: .color(Palette.panel))
@@ -85,13 +86,19 @@ struct TreemapCanvas: View {
             let fill = isMarked ? Palette.danger : base
             let opacity = min(0.95, 0.45 + Double(tile.depth) * 0.10)
             context.fill(path, with: .color(fill.opacity(opacity)))
+            if rect.height > 12 {
+                context.fill(path, with: .linearGradient(
+                    Gradient(colors: [.white.opacity(0.07), .clear]),
+                    startPoint: CGPoint(x: rect.midX, y: rect.minY), endPoint: CGPoint(x: rect.midX, y: rect.minY + min(rect.height, 60))
+                ))
+            }
 
             if tree.reclaim[node] != nil, !isMarked {
                 drawHatch(in: rect, context: &context)
             }
             if let header = tile.header {
                 let band = zoom.transformed(header)
-                context.fill(Path(band), with: .color(fill.opacity(min(1, opacity + 0.2))))
+                context.fill(Path(roundedRect: band, cornerRadius: radius, style: .continuous), with: .color(fill.opacity(min(1, opacity + 0.2))))
                 if tile.depth == 0 {
                     context.fill(Path(CGRect(x: band.minX, y: band.minY, width: band.width, height: 2)), with: .color(fill))
                 }
@@ -108,7 +115,7 @@ struct TreemapCanvas: View {
                 context.stroke(path, with: .color(.white.opacity(0.5)), lineWidth: 1)
             }
             if node == model.selection {
-                context.stroke(Path(rect.insetBy(dx: 1, dy: 1)), with: .color(Palette.amber), lineWidth: 2)
+                context.stroke(Path(roundedRect: rect.insetBy(dx: 1, dy: 1), cornerRadius: radius, style: .continuous), with: .color(Palette.amber), lineWidth: 2)
             }
         }
     }

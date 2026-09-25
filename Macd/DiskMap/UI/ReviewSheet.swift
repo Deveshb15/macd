@@ -70,13 +70,23 @@ struct ReviewSheet: View {
                 .foregroundStyle(.secondary)
 
             HStack {
-                Button("Cancel") { model.closeReview() }.keyboardShortcut(.cancelAction)
+                Button("Cancel") { model.closeReview() }
+                    .buttonStyle(SecondaryGlassButtonStyle())
+                    .keyboardShortcut(.cancelAction)
                 Spacer()
                 Button("Delete Permanently…", role: .destructive) { model.requestPermanentDelete() }
+                    .buttonStyle(SecondaryGlassButtonStyle())
+                    .foregroundStyle(Palette.danger)
                     .disabled(model.marks.isEmpty)
-                Button("Move to Trash") { Task { await model.moveToTrash() } }
-                    .keyboardShortcut(.defaultAction)
-                    .disabled(model.marks.isEmpty)
+                Button {
+                    Task { await model.moveToTrash() }
+                } label: {
+                    Label("Move to Trash", systemImage: "trash").frame(width: 150)
+                }
+                .buttonStyle(PrimaryGlassButtonStyle())
+                .fixedSize()
+                .keyboardShortcut(.defaultAction)
+                .disabled(model.marks.isEmpty)
             }
         }
     }
@@ -90,8 +100,13 @@ struct ReviewSheet: View {
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
                 Spacer()
-                Button("Cancel") { model.cancelPermanentDelete() }.keyboardShortcut(.cancelAction)
+                Button("Cancel") { model.cancelPermanentDelete() }
+                    .buttonStyle(SecondaryGlassButtonStyle())
+                    .keyboardShortcut(.cancelAction)
                 Button("Delete", role: .destructive) { Task { await model.confirmPermanentDelete() } }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Palette.danger)
+                    .controlSize(.large)
             }
         }
     }
@@ -117,7 +132,10 @@ struct ReviewSheet: View {
         }
         HStack {
             Spacer()
-            Button("Done") { model.closeReview() }.keyboardShortcut(.defaultAction)
+            Button("Done") { model.closeReview() }
+                .buttonStyle(PrimaryGlassButtonStyle())
+                .frame(width: 120)
+                .keyboardShortcut(.defaultAction)
         }
     }
 }

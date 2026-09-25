@@ -23,6 +23,8 @@ final class CleanFlow {
     private(set) var state: State = .idle
     /// The latest line Mole printed, shown as progress text.
     private(set) var progressLine: String?
+    /// What the most recent preview found, so the panel can say how much a clean would free.
+    private(set) var lastPreviewTotal: Int64?
 
     @ObservationIgnored private let runner: MoleCommandRunning?
     @ObservationIgnored private let freeSpace: () -> Int64?
@@ -52,6 +54,7 @@ final class CleanFlow {
             do {
                 let result = try await runner.run(["clean", "--dry-run"], timeout: .seconds(900), onLine: progressHandler())
                 let preview = try CleanPreviewParser.parse(result.output)
+                lastPreviewTotal = preview.totalBytes
                 state = preview.totalBytes > 0 ? .ready(preview) : .empty
             } catch MoleError.cancelled {
                 state = .idle
@@ -81,6 +84,7 @@ final class CleanFlow {
                 return
             }
             let freed = Self.freed(before: before, after: freeSpace())
+            lastPreviewTotal = nil
             state = .done(CleanResult(freedBytes: freed, skipped: preview.skipped, wasCancelled: cancelled))
             progressLine = nil
         }

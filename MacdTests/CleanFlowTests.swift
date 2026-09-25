@@ -55,6 +55,7 @@ final class CleanFlowTests: XCTestCase {
 
         guard case .ready(let preview) = flow.state else { return XCTFail("state \(flow.state)") }
         XCTAssertEqual(preview.totalBytes, 3_500_000_000)
+        XCTAssertEqual(flow.lastPreviewTotal, 3_500_000_000)
         XCTAssertEqual(runner.calls, [["clean", "--dry-run"]])
     }
 
@@ -77,6 +78,7 @@ final class CleanFlowTests: XCTestCase {
         XCTAssertEqual(result.skipped, [CleanPreviewParser.adminSkip])
         XCTAssertFalse(result.wasCancelled)
         XCTAssertEqual(runner.calls, [["clean", "--dry-run"], ["clean"]])
+        XCTAssertNil(flow.lastPreviewTotal, "a clean makes the old estimate stale")
     }
 
     func testCancelWhenReadyNeverCleans() async {
