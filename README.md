@@ -1,28 +1,58 @@
 # mac'd
 
-A minimal macOS menu bar app that shows CPU temperature, memory use, and free disk space,
-and frees up space with a preview you can read before anything is deleted. Cleaning and
-disk analysis are powered by a bundled copy of [Mole](https://github.com/tw93/Mole), so no
-terminal or Homebrew is needed.
+A minimal macOS menu bar app: CPU temperature, memory, and disk space at a glance, a
+one-click cleanup, and a treemap for seeing exactly what's filling your disk.
 
-**Disk Map** (Analyze Disk… in the menu) is a treemap of your home folder, modeled on
-[disktree](https://github.com/tobi/disktree): colour shows the kind of data, a hatch shows
-space you can get back, and you can mark items, review them, and move them to the Trash or
-delete them permanently. Allow access to Desktop, Documents, and Downloads when macOS asks,
-and grant Full Disk Access to include folders like Mail.
+No terminal, no Homebrew. Cleaning is powered by a bundled copy of
+[Mole](https://github.com/tw93/Mole); the disk map is a native port of
+[disktree](https://github.com/tobi/disktree)'s scanner, treemap layout, and classification.
 
-Requires macOS 15 or later. CPU temperature is supported on Apple Silicon.
+![Disk Map, showing a treemap of a home folder coloured by kind of data, with a Worth a Look panel on the right](assets/disk-map.png)
 
-## Develop
+## Features
+
+- **Menu bar readout** — CPU temperature, memory used, and disk free, updated live and
+  configurable per-metric.
+- **Free Up Space** — previews what Mole would clean, grouped into plain-language
+  categories with sizes, before anything is deleted. Reports how much space it skipped and why
+  (open apps, admin-only caches).
+- **Disk Map** — a treemap of your home folder. Colour shows the kind of data (code, agent
+  scratch, toolchains, synced files, git, media, documents, cache); a hatch marks space you
+  can get back. Mark items, review them, and move them to the Trash or delete permanently,
+  each behind rules that refuse to touch anything outside the scan, the home folder itself,
+  or macOS's own files.
+- **Worth a Look** — the biggest reclaimable folders, stale agent worktrees, and abandoned
+  experiments, surfaced automatically.
+- **Low-space alert** — a notification when free space drops below a threshold you set.
+
+Requires macOS 15 or later. CPU temperature reads Apple Silicon's sensors directly.
+
+## Install
+
+There's no signed release yet — build it from source:
 
 ```bash
 brew install xcodegen
+git clone https://github.com/Deveshb15/macd.git
+cd macd
 scripts/fetch-mole.sh     # vendors the pinned Mole release into Vendor/mole
 xcodegen generate         # creates Macd.xcodeproj from project.yml
 open Macd.xcodeproj
 ```
 
-Run the tests from Xcode, or with `xcodebuild test -project Macd.xcodeproj -scheme Macd`.
+Build and run the `Macd` scheme. The app requests access to Desktop, Documents, and
+Downloads on first scan, and shows how to grant Full Disk Access for folders like Mail that
+need it.
+
+## Develop
+
+```bash
+xcodebuild test -project Macd.xcodeproj -scheme Macd
+```
+
+The test suite covers the scanner, the treemap layout, classification, every removal safety
+rule, and the cleanup preview parser — run it after any change to `Macd/DiskMap` or
+`Macd/Mole`.
 
 ## Release
 
@@ -30,7 +60,7 @@ Run the tests from Xcode, or with `xcodebuild test -project Macd.xcodeproj -sche
 DEVELOPMENT_TEAM=ABCDE12345 NOTARY_PROFILE=macd-notary scripts/notarize.sh
 ```
 
-This produces a signed, notarized, and stapled `build/macd.dmg`.
+Produces a signed, notarized, and stapled `build/macd.dmg`.
 
 ## Updating Mole
 
@@ -38,9 +68,16 @@ This produces a signed, notarized, and stapled `build/macd.dmg`.
 2. Run `scripts/fetch-mole.sh`.
 3. Capture a fresh `mole clean --dry-run` and `mole analyze -json` output into
    `MacdTests/Fixtures/`, then run the tests. The cleanup preview parses Mole's text
-   output, so a Mole update can break it. The fixtures catch that.
+   output, so a Mole update can break it — the fixtures catch that.
 
-## License
+## Third-party software
 
-mac'd bundles Mole, which is licensed under the GNU GPL v3. Mole runs as a separate
-program and mac'd does not link its code. See `Macd/Resources/THIRD_PARTY_NOTICES.md`.
+mac'd's own code is MIT-licensed — see [LICENSE](LICENSE).
+
+- **[Mole](https://github.com/tw93/Mole)** (GPL-3.0-or-later) is bundled and runs as a
+  separate program mac'd launches; its code is not linked into the app.
+- **[disktree](https://github.com/tobi/disktree)** (MIT) is the model for the disk map —
+  its scanning approach, treemap layout, classification rules, and removal safety rules are
+  ported to Swift.
+
+Full notices and license text: `Macd/Resources/THIRD_PARTY_NOTICES.md`.
