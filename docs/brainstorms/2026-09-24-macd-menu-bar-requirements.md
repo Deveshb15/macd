@@ -7,7 +7,7 @@ topic: macd-menu-bar
 
 ## Summary
 
-A minimal macOS menu bar app that shows CPU temperature, RAM use, and free disk space at a glance, and turns Mole's cleaning into a friendly preview → confirm → "you freed X GB" flow. A single window lets users explore what is taking up their disk. Mole ships inside the app, so no one ever opens a terminal.
+A minimal macOS menu bar app that shows CPU temperature, RAM use, and free disk space at a glance, and turns Mole's cleaning into a friendly preview → confirm → "you freed X GB" flow. A disktree-style treemap window shows what is taking up the disk and lets users mark, review, and remove it. Mole ships inside the app, so no one ever opens a terminal.
 
 ---
 
@@ -22,7 +22,8 @@ The gap is a lightweight, transparent bridge: glanceable health, and when space 
 ## Key Decisions
 
 - **Mole GUI first, stats second.** The stats are the hook that tells users when to act; the reason the app exists is making Mole usable without a terminal.
-- **Menu bar first, one window.** Monitoring and cleaning live in the menu bar panel. Only disk analysis gets a window, because drill-down needs room.
+- **Menu bar first, one main window.** Monitoring and cleaning live in the menu bar panel. The disk map gets a window, because a treemap needs room.
+- **The disk map can remove things, disktree-style.** Mark → review → Move to Trash by default, or delete permanently behind a confirmation that names what goes and how much comes back. Safety rules refuse anything that would break the system or reach outside the scan. Modeled on tobi/disktree (MIT).
 - **Bundle Mole inside the app.** Zero setup for users. The app owns which Mole version it ships and when it updates.
 - **Distribute outside the Mac App Store.** Built for the author first, shared later as a notarized download. The App Store sandbox would block temperature sensors and running Mole.
 - **Preview is mandatory and all-or-nothing.** No "clean without looking" action exists. Every cleanup shows what will be removed and how much space it frees, then cleans everything shown or nothing. Mole cannot clean a subset of categories.
@@ -53,10 +54,21 @@ The gap is a lightweight, transparent bridge: glanceable health, and when space 
 - R11. After cleanup, the app reports how much space was freed and anything it skipped, including items that need admin rights.
 - R12. The app shows progress during preview and cleanup, and handles cancellation or failure without leaving the user guessing.
 
-**Disk analysis**
+**Disk map**
 
-- R13. Analyze disk opens a window showing what is using space, largest first, with drill-down into folders.
-- R14. From the analysis view, the user can reveal an item in Finder.
+- R13. Analyze disk opens a treemap of the home folder, where each tile's area is its size on disk, with drill-down into folders.
+- R14. From the disk map, the user can reveal any item in Finder.
+- R19. Tile colour shows the kind of data (code, agent scratch, toolchains, synced, git, media, documents, cache), and a hatch marks space that can be had back.
+- R20. The map can rank by size, file count, or age (last write), and toggle hidden files, apparent size, and the depth drawn.
+- R21. A side panel shows the selection (size, share, files, last write, kind), a "Worth a look" list of the largest plausible removals, and disk free space now and after the marks.
+- R22. The user can filter tiles by name, and zoom toward the pointer with scroll or pinch, going into a folder once it fills the view.
+- R23. The user can mark and unmark tiles. Marking a folder absorbs marks inside it, and no space is counted twice.
+- R24. A review screen lists everything marked. Move to Trash is the default. Delete permanently always asks first, naming what goes and how much comes back.
+- R25. After removal the app rescans and reports the free space actually gained.
+- R26. Removal refuses the filesystem root, the scanned root, the home folder, `~/Library` itself, system folders, anything on another volume, and anything inside an app bundle or library package.
+- R27. Folders macOS will not let the app read are shown as unreadable, with a way to grant Full Disk Access, never guessed at.
+- R28. Scanning never downloads cloud-only iCloud files, and counts hardlinked files once.
+- R29. The user can widen the scan to the whole data volume.
 
 **Nudges**
 
@@ -77,6 +89,10 @@ The gap is a lightweight, transparent bridge: glanceable health, and when space 
 - AE3. **Covers R11.** Given some items need admin rights, when cleanup finishes, the result lists them as skipped with a short reason instead of prompting for a password.
 - AE4. **Covers R15, R16.** Given the threshold is 20 GB and free space falls to 18 GB, a notification appears once, and clicking it opens the cleanup preview. It does not repeat every refresh.
 - AE5. **Covers R5.** Given the temperature sensor cannot be read, the menu bar shows "—°" instead of 0°.
+- AE6. **Covers R23.** Given `~/src/app/node_modules` is marked, when the user marks `~/src/app`, the inner mark is absorbed and the marked total counts `node_modules` once.
+- AE7. **Covers R24, R25.** Given 12 GB is marked, when the user chooses Move to Trash on the review screen, the items go to the Trash, the map rescans, and the result shows the measured gain.
+- AE8. **Covers R26.** Given the user tries to mark a folder inside `Photos Library.photoslibrary`, the app refuses and says why.
+- AE9. **Covers R27.** Given `~/Library/Mail` cannot be read, its tile shows as unreadable, and the panel offers to open the Full Disk Access settings.
 
 ---
 
@@ -89,9 +105,14 @@ The gap is a lightweight, transparent bridge: glanceable health, and when space 
   - **Covered by:** R8–R12, R15
 - F2. Where did my space go?
   - **Trigger:** The user clicks Analyze disk.
-  - **Steps:** Window opens → scan with progress → largest items first → drill into folders → reveal in Finder.
-  - **Outcome:** The user understands what is taking space and can act on it in Finder.
-  - **Covered by:** R13, R14
+  - **Steps:** Window opens → scan with progress → treemap coloured by kind → drill in or zoom → select to see details → reveal in Finder.
+  - **Outcome:** The user understands what is taking space.
+  - **Covered by:** R13, R14, R19–R22
+- F3. Mark, review, remove
+  - **Trigger:** The user spots something in the map or the Worth a look list.
+  - **Steps:** Mark tiles → free-after updates → Review → unmark any → Move to Trash, or Delete permanently and confirm → rescan → measured gain.
+  - **Outcome:** Space comes back, and the map matches the disk.
+  - **Covered by:** R23–R26
 
 ---
 
@@ -110,7 +131,6 @@ The gap is a lightweight, transparent bridge: glanceable health, and when space 
 **Outside this product's identity**
 
 - A full dashboard of every system metric (GPU, network, battery, fans). Stats and iStat Menus already cover this.
-- Deleting from inside the analysis view. Analysis stays read-only in v1, and removal goes through Finder or the cleanup preview.
 - Mac App Store distribution.
 
 ---
@@ -121,6 +141,8 @@ The gap is a lightweight, transparent bridge: glanceable health, and when space 
 - The bundled Mole runs from inside a signed, notarized app bundle without extra user steps (unverified).
 - `mo status --json` and `mo analyze --json` provide machine-readable metrics and disk analysis. `mo clean` does not provide JSON, so its preview output must be interpreted from text.
 - Reading CPU temperature on Apple Silicon requires the app's own sensor access, as the Stats app does.
+- tobi/disktree is MIT-licensed. Porting its algorithms and rules requires keeping its copyright notice.
+- On APFS, cloned files and local snapshots can make the space actually freed smaller than the marked total. The measured gain after removal is the honest number.
 
 ---
 
@@ -139,3 +161,4 @@ The gap is a lightweight, transparent bridge: glanceable health, and when space 
 - Mole v1.49.2 (installed via Homebrew): commands `clean`, `analyze`, `status`, `uninstall`, `purge`, `installer`, `optimize`, `history --json`; `--dry-run` on destructive commands; `--json` on `status` and `analyze`. https://github.com/tw93/Mole
 - `mo status --json` on the author's M2 Max (macOS 26.6.2) returned `thermal.cpu_temp: 0`, with RAM and disk populated.
 - Stats (exelban/stats), an open-source menu bar monitor and reference for reading Apple Silicon temperature sensors. https://github.com/exelban/stats
+- disktree (tobi/disktree), a Linux treemap disk tool and the model for the disk map. https://github.com/tobi/disktree
