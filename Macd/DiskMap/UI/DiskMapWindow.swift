@@ -12,29 +12,19 @@ struct DiskMapWindow: View {
     @FocusState private var mapFocused: Bool
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 0) {
             TopBar(model: model, filterFocused: $filterFocused)
-                .macdGlass(in: .rect(cornerRadius: 16))
-            HStack(spacing: 10) {
+            Divider()
+            HStack(spacing: 0) {
                 content
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(.white.opacity(0.06)))
+                Divider()
                 SidePanel(model: model, hovered: hovered)
-                    .macdGlass(in: .rect(cornerRadius: 16))
             }
+            Divider()
             KeyHints(showingHelp: $showingHelp)
-                .macdGlass(in: Capsule())
         }
-        .padding(10)
         .frame(minWidth: 1100, minHeight: 700)
-        .background {
-            ZStack {
-                Palette.background
-                RadialGradient(colors: [Theme.accent.opacity(0.10), .clear], center: .topTrailing, startRadius: 0, endRadius: 700)
-                RadialGradient(colors: [Theme.diskGradient[0].opacity(0.10), .clear], center: .bottomLeading, startRadius: 0, endRadius: 800)
-            }
-            .ignoresSafeArea()
-        }
+        .background(Palette.background)
         .preferredColorScheme(.dark)
         .onAppear {
             if privacyNoticeSeen, model.phase == .idle { model.startScan() }
@@ -193,8 +183,8 @@ private struct KeyHints: View {
         }
         .font(.caption)
         .foregroundStyle(.secondary)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 7)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 6)
     }
 
     private func hint(_ key: String, _ does: String) -> some View {

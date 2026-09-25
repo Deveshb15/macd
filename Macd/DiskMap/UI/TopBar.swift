@@ -51,6 +51,7 @@ struct TopBar: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
+        .background(Palette.panel)
     }
 }
 

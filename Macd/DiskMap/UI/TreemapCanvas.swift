@@ -69,7 +69,7 @@ struct TreemapCanvas: View {
         for tile in tiles {
             let rect = zoom.transformed(tile.rect)
             guard rect.intersects(bounds), rect.width >= 1, rect.height >= 1 else { continue }
-            let radius = min(5, min(rect.width, rect.height) / 5)
+            let radius = min(2, min(rect.width, rect.height) / 5)
             let path = Path(roundedRect: rect, cornerRadius: radius, style: .continuous)
 
             guard let node = tile.node else {
@@ -86,12 +86,6 @@ struct TreemapCanvas: View {
             let fill = isMarked ? Palette.danger : base
             let opacity = min(0.95, 0.45 + Double(tile.depth) * 0.10)
             context.fill(path, with: .color(fill.opacity(opacity)))
-            if rect.height > 12 {
-                context.fill(path, with: .linearGradient(
-                    Gradient(colors: [.white.opacity(0.07), .clear]),
-                    startPoint: CGPoint(x: rect.midX, y: rect.minY), endPoint: CGPoint(x: rect.midX, y: rect.minY + min(rect.height, 60))
-                ))
-            }
 
             if tree.reclaim[node] != nil, !isMarked {
                 drawHatch(in: rect, context: &context)

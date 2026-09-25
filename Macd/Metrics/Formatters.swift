@@ -1,21 +1,28 @@
 import Foundation
 
-/// Display formatting for the menu bar and panel. Sizes are decimal (1 GB = 10⁹ bytes),
-/// matching Finder and Mole.
+/// Display formatting for the menu bar and panel. Storage uses the system's file-size
+/// style (decimal, as Finder shows it); memory uses binary units, as Activity Monitor does.
 nonisolated enum Formatters {
     static let unavailable = "—"
 
     static func bytes(_ value: Int64) -> String {
-        let units: [(String, Double)] = [("TB", 1e12), ("GB", 1e9), ("MB", 1e6), ("KB", 1e3)]
-        let magnitude = Double(max(value, 0))
-        for (unit, scale) in units where magnitude >= scale {
-            return "\(trimmed(magnitude / scale)) \(unit)"
-        }
-        return "\(max(value, 0)) B"
+        let clamped = max(value, 0)
+        guard clamped > 0 else { return "0 KB" }
+        return ByteCountFormatter.string(fromByteCount: clamped, countStyle: .file)
     }
 
     static func bytes(_ value: UInt64) -> String {
         bytes(Int64(clamping: value))
+    }
+
+    /// RAM in binary gigabytes with at most one decimal: "43.1 GB", "64 GB".
+    static func memory(_ value: UInt64) -> String {
+        let gigabytes = Double(value) / 1_073_741_824
+        if gigabytes >= 100 || gigabytes == gigabytes.rounded() {
+            return "\(Int(gigabytes.rounded())) GB"
+        }
+        let rounded = (gigabytes * 10).rounded() / 10
+        return rounded == rounded.rounded() ? "\(Int(rounded)) GB" : String(format: "%.1f GB", rounded)
     }
 
     static func temperature(_ celsius: Double?) -> String {
@@ -31,17 +38,5 @@ nonisolated enum Formatters {
     static func diskFree(_ disk: DiskUsage?) -> String {
         guard let disk else { return "\(unavailable) GB" }
         return bytes(disk.freeBytes)
-    }
-
-    /// One decimal below 10 (dropping ".0"), whole numbers from 10 up.
-    private static func trimmed(_ value: Double) -> String {
-        if value >= 10 {
-            return String(Int(value.rounded()))
-        }
-        let rounded = (value * 10).rounded() / 10
-        if rounded >= 10 {
-            return String(Int(rounded))
-        }
-        return rounded == rounded.rounded() ? String(Int(rounded)) : String(format: "%.1f", rounded)
     }
 }

@@ -71,22 +71,14 @@ struct ReviewSheet: View {
 
             HStack {
                 Button("Cancel") { model.closeReview() }
-                    .buttonStyle(SecondaryGlassButtonStyle())
                     .keyboardShortcut(.cancelAction)
                 Spacer()
                 Button("Delete Permanently…", role: .destructive) { model.requestPermanentDelete() }
-                    .buttonStyle(SecondaryGlassButtonStyle())
-                    .foregroundStyle(Palette.danger)
                     .disabled(model.marks.isEmpty)
-                Button {
-                    Task { await model.moveToTrash() }
-                } label: {
-                    Label("Move to Trash", systemImage: "trash").frame(width: 150)
-                }
-                .buttonStyle(PrimaryGlassButtonStyle())
-                .fixedSize()
-                .keyboardShortcut(.defaultAction)
-                .disabled(model.marks.isEmpty)
+                Button("Move to Trash") { Task { await model.moveToTrash() } }
+                    .buttonStyle(.borderedProminent)
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(model.marks.isEmpty)
             }
         }
     }
@@ -101,12 +93,10 @@ struct ReviewSheet: View {
             HStack {
                 Spacer()
                 Button("Cancel") { model.cancelPermanentDelete() }
-                    .buttonStyle(SecondaryGlassButtonStyle())
                     .keyboardShortcut(.cancelAction)
                 Button("Delete", role: .destructive) { Task { await model.confirmPermanentDelete() } }
                     .buttonStyle(.borderedProminent)
-                    .tint(Palette.danger)
-                    .controlSize(.large)
+                    .tint(.red)
             }
         }
     }
@@ -133,8 +123,7 @@ struct ReviewSheet: View {
         HStack {
             Spacer()
             Button("Done") { model.closeReview() }
-                .buttonStyle(PrimaryGlassButtonStyle())
-                .frame(width: 120)
+                .buttonStyle(.borderedProminent)
                 .keyboardShortcut(.defaultAction)
         }
     }

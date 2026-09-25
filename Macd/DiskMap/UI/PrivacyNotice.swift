@@ -17,18 +17,13 @@ struct PrivacyNotice: View {
             .font(.callout)
             .foregroundStyle(.secondary)
             HStack {
-                Button("Full Disk Access Settings") {
+                Button("Full Disk Access Settings…") {
                     NSWorkspace.shared.open(DiskMapModel.fullDiskAccessURL)
                 }
-                .buttonStyle(SecondaryGlassButtonStyle())
-                .fixedSize()
                 Spacer()
-                Button(action: onContinue) {
-                    Label("Start Scan", systemImage: "sparkle.magnifyingglass").frame(width: 130)
-                }
-                .buttonStyle(PrimaryGlassButtonStyle())
-                .fixedSize()
-                .keyboardShortcut(.defaultAction)
+                Button("Start Scan", action: onContinue)
+                    .buttonStyle(.borderedProminent)
+                    .keyboardShortcut(.defaultAction)
             }
         }
         .padding(24)
