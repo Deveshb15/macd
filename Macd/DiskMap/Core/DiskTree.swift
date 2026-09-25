@@ -46,6 +46,10 @@ nonisolated final class ScanDirectory: @unchecked Sendable {
     }
 }
 
+nonisolated enum TreeDecodingError: Error, Equatable {
+    case inconsistent
+}
+
 /// A finished scan as flat arrays indexed by node ID. Node 0 is the root.
 /// Children of a node have consecutive IDs, always larger than their parent's,
 /// so iterating IDs in reverse visits children before parents.
@@ -123,6 +127,103 @@ nonisolated final class DiskTree: @unchecked Sendable {
         }
         category = Array(repeating: .other, count: count)
         reclaim = Array(repeating: nil, count: count)
+    }
+
+    /// The tree's raw storage, for saving to and loading from the scan cache.
+    struct Columns: Equatable, Sendable {
+        var names: [String]
+        var parent: [Int32]
+        var childStart: [Int32]
+        var childCount: [Int32]
+        var allocated: [UInt64]
+        var apparent: [UInt64]
+        var files: [UInt64]
+        var newest: [Int64]
+        var kind: [UInt8]
+        var flags: [UInt8]
+        var device: [Int32]
+        var inode: [UInt64]
+    }
+
+    var columns: Columns {
+        Columns(
+            names: names, parent: parent, childStart: childStart, childCount: childCount,
+            allocated: allocated, apparent: apparent, files: files, newest: newest,
+            kind: kind.map(\.rawValue), flags: flags.map(\.rawValue), device: device, inode: inode
+        )
+    }
+
+    /// Rebuilds a tree from saved columns. Throws when they are inconsistent.
+    init(rootPath: String, columns c: Columns) throws(TreeDecodingError) {
+        let n = c.names.count
+        let counts = [c.parent.count, c.childStart.count, c.childCount.count, c.allocated.count, c.apparent.count,
+                      c.files.count, c.newest.count, c.kind.count, c.flags.count, c.device.count, c.inode.count]
+        guard n > 0, counts.allSatisfy({ $0 == n }) else { throw .inconsistent }
+        var kinds: [NodeKind] = []
+        kinds.reserveCapacity(n)
+        for raw in c.kind {
+            guard let kind = NodeKind(rawValue: raw) else { throw .inconsistent }
+            kinds.append(kind)
+        }
+        for id in 0..<n {
+            let up = Int(c.parent[id])
+            let start = Int(c.childStart[id])
+            let size = Int(c.childCount[id])
+            guard (id == 0 ? up == -1 : (up >= 0 && up < id)), size >= 0, size == 0 || (start > id && start + size <= n) else {
+                throw .inconsistent
+            }
+        }
+        self.rootPath = rootPath
+        names = c.names
+        parent = c.parent
+        childStart = c.childStart
+        childCount = c.childCount
+        allocated = c.allocated
+        apparent = c.apparent
+        files = c.files
+        newest = c.newest
+        kind = kinds
+        flags = c.flags.map(NodeFlags.init(rawValue:))
+        device = c.device
+        inode = c.inode
+        unreadableCount = kinds.lazy.filter { $0 == .unreadable }.count
+        category = Array(repeating: .other, count: n)
+        reclaim = Array(repeating: nil, count: n)
+    }
+
+    /// An editable copy of the tree as scanner directories, so a refresh can re-read
+    /// changed folders and keep everything else. Directories take their newest
+    /// modification time as their own, which rebuilds to the same totals.
+    func makeMirror() -> ScanDirectory {
+        var directories = [ScanDirectory?](repeating: nil, count: count)
+        let root = ScanDirectory(name: names[0], device: device[0], inode: inode[0], modified: newest[0], flags: flags[0])
+        root.state = .read
+        directories[0] = root
+        for id in 1..<count {
+            guard let up = directories[Int(parent[id])] else { continue }
+            switch kind[id] {
+            case .directory, .unreadable, .otherVolume:
+                let directory = ScanDirectory(name: names[id], device: device[id], inode: inode[id], modified: newest[id], flags: flags[id])
+                directory.state = switch kind[id] {
+                case .unreadable: .unreadable
+                case .otherVolume: .otherVolume
+                default: .read
+                }
+                up.subdirectories.append(directory)
+                directories[id] = directory
+            case .file:
+                up.files.append(ScanFile(
+                    name: names[id], allocated: allocated[id], apparent: apparent[id], modified: newest[id],
+                    device: device[id], inode: inode[id], flags: flags[id]
+                ))
+            case .smallFiles:
+                up.smallAllocated = allocated[id]
+                up.smallApparent = apparent[id]
+                up.smallCount = files[id]
+                up.smallNewest = newest[id]
+            }
+        }
+        return root
     }
 
     private func append(name: String, parent up: Int, directory: ScanDirectory) {

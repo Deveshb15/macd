@@ -114,6 +114,14 @@ private struct Totals: View {
                         .foregroundStyle(Palette.amber)
                         .help("Folders macOS won't let mac'd read. Grant Full Disk Access to include them.")
                 }
+                if model.isRefreshing {
+                    Text("· updating…").foregroundStyle(.secondary)
+                } else if let updatedAt = model.updatedAt {
+                    TimelineView(.periodic(from: .now, by: 30)) { _ in
+                        Text("· updated \(updatedAt.formatted(.relative(presentation: .named)))")
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
             .monospacedDigit()
         }

@@ -5,7 +5,6 @@ struct DiskMapWindow: View {
     @Bindable var model: DiskMapModel
     @AppStorage("diskMapPrivacyNoticeSeen") private var privacyNoticeSeen = false
     @State private var zoom = ZoomController()
-    @State private var hovered: Int?
     @State private var showingHelp = false
     @State private var canvasSize: CGSize = .zero
     @FocusState private var filterFocused: Bool
@@ -18,7 +17,7 @@ struct DiskMapWindow: View {
             HStack(spacing: 0) {
                 content
                 Divider()
-                SidePanel(model: model, hovered: hovered)
+                SidePanel(model: model, hovered: model.hovered)
             }
             Divider()
             KeyHints(showingHelp: $showingHelp)
@@ -27,12 +26,13 @@ struct DiskMapWindow: View {
         .background(Palette.background)
         .preferredColorScheme(.dark)
         .onAppear {
-            if privacyNoticeSeen, model.phase == .idle { model.startScan() }
+            if privacyNoticeSeen { model.open() }
         }
+        .onDisappear { model.close() }
         .sheet(isPresented: Binding(get: { !privacyNoticeSeen }, set: { _ in })) {
             PrivacyNotice {
                 privacyNoticeSeen = true
-                if model.phase == .idle { model.startScan() }
+                model.open()
             }
         }
         .sheet(isPresented: Binding(get: { model.review != .hidden }, set: { if !$0 { model.closeReview() } })) {
@@ -57,9 +57,9 @@ struct DiskMapWindow: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         default:
-            TreemapCanvas(model: model, zoom: $zoom, hovered: $hovered, size: $canvasSize)
+            TreemapCanvas(model: model, zoom: $zoom, hovered: $model.hovered, size: $canvasSize)
                 .overlay(alignment: .top) {
-                    if model.phase == .scanning { ScanBanner(model: model) }
+                    if model.phase == .scanning || model.isRefreshing { ScanBanner(model: model) }
                 }
                 .focusable()
                 .focusEffectDisabled()
@@ -74,7 +74,7 @@ struct DiskMapWindow: View {
 
     private func handle(_ press: KeyPress) -> KeyPress.Result {
         guard !filterFocused, let action = KeyMap.action(for: keyName(press)) else { return .ignored }
-        let target = hovered ?? model.selection
+        let target = model.hovered ?? model.selection
         switch action {
         case .toggleMark: model.toggleMark(target)
         case .open:
@@ -98,7 +98,7 @@ struct DiskMapWindow: View {
         case .resetZoom: zoom.reset()
         case .help: showingHelp = true
         }
-        if [.previous, .next, .nextLargest].contains(action) { hovered = nil }
+        if [.previous, .next, .nextLargest].contains(action) { model.hovered = nil }
         return .handled
     }
 
@@ -153,7 +153,9 @@ private struct ScanBanner: View {
         TimelineView(.periodic(from: .now, by: 0.25)) { _ in
             HStack(spacing: 8) {
                 ProgressView().controlSize(.small)
-                Text("Rescanning · \(model.progress.entries.load(ordering: .relaxed).formatted()) items")
+                Text(model.phase == .scanning
+                    ? "Rescanning · \(model.progress.entries.load(ordering: .relaxed).formatted()) items"
+                    : "Updating changed folders…")
                     .monospacedDigit()
             }
             .font(.caption)

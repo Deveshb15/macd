@@ -19,9 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-This license covers mac'd's own code. mac'd bundles Mole (GPL-3.0-or-later) as a
-separate program it launches, and ports algorithms from disktree (MIT). See
-"Third-party software" below and Macd/Resources/THIRD_PARTY_NOTICES.md for details.

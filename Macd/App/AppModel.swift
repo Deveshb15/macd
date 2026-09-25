@@ -27,7 +27,7 @@ final class AppModel {
         metrics = MetricsMonitor(temperature: TemperatureReader(), memory: MemoryReader(), disk: disk)
         let runner = MoleRunner.bundled()
         cleanFlow = CleanFlow(runner: runner, freeSpace: { disk.diskUsage()?.freeBytes })
-        diskMap = DiskMapModel()
+        diskMap = DiskMapModel(cache: DiskScanCache(), changes: FSEventsChangeTracker())
         moleVersion = runner.flatMap { runner in
             try? String(contentsOf: runner.scriptURL.deletingLastPathComponent().appendingPathComponent("VERSION"), encoding: .utf8)
                 .trimmingCharacters(in: .whitespacesAndNewlines)

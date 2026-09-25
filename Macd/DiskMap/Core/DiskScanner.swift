@@ -72,18 +72,28 @@ nonisolated struct DiskScanner: DiskScanning {
             name: (rootPath as NSString).lastPathComponent, device: info.st_dev,
             inode: UInt64(info.st_ino), modified: Int64(info.st_mtimespec.tv_sec)
         )
+        let context = ScanContext(options: options, rootDevice: info.st_dev, progress: progress)
+        Self.fill([(rootDirectory, rootPath)], context: context, workers: workerCount)
 
-        let queue = WorkQueue(first: (rootDirectory, rootPath))
-        let context = Context(options: options, rootDevice: info.st_dev, progress: progress, seenInodes: InodeSet())
+        if progress.isCancelled { throw ScanError.cancelled }
+        if rootDirectory.state == .unreadable { throw ScanError.rootUnreadable(rootPath) }
+        return DiskTree(rootPath: rootPath, root: rootDirectory)
+    }
 
+    /// Scans each directory and everything beneath it, in parallel. Blocks until done.
+    static func fill(_ items: [(ScanDirectory, String)], context: ScanContext, workers: Int = max(2, ProcessInfo.processInfo.activeProcessorCount)) {
+        guard !items.isEmpty else { return }
+        let queue = WorkQueue(items: items)
         let group = DispatchGroup()
-        for _ in 0..<workerCount {
+        for _ in 0..<workers {
             group.enter()
             let thread = Thread {
-                Self.disableDatalessMaterialization()
+                disableDatalessMaterialization()
                 while let (directory, path) = queue.take() {
-                    if !progress.isCancelled {
-                        Self.read(directory, at: path, context: context, queue: queue)
+                    if !context.progress.isCancelled {
+                        if case .read(let discovered) = readDirectory(directory, at: path, context: context) {
+                            queue.push(discovered)
+                        }
                     }
                     queue.finishOne()
                 }
@@ -94,43 +104,33 @@ nonisolated struct DiskScanner: DiskScanning {
             thread.start()
         }
         group.wait()
-
-        if progress.isCancelled { throw ScanError.cancelled }
-        if rootDirectory.state == .unreadable { throw ScanError.rootUnreadable(rootPath) }
-        return DiskTree(rootPath: rootPath, root: rootDirectory)
     }
 
     // MARK: Reading one directory
 
-    private struct InodeKey: Hashable, Sendable {
-        let device: Int32
-        let inode: UInt64
+    enum ReadOutcome {
+        /// Read; these subdirectories still need scanning.
+        case read(discovered: [(ScanDirectory, String)])
+        case unreadable
+        /// The directory no longer exists.
+        case missing
     }
 
-    private final class InodeSet: Sendable {
-        private let seen = Mutex<Set<InodeKey>>([])
-
-        /// Records the inode; returns `true` the first time it is seen.
-        func insert(_ key: InodeKey) -> Bool {
-            seen.withLock { $0.insert(key).inserted }
-        }
-    }
-
-    private struct Context: Sendable {
-        let options: ScanOptions
-        let rootDevice: Int32
-        let progress: ScanProgress
-        let seenInodes: InodeSet
-    }
-
-    private static func read(_ directory: ScanDirectory, at path: String, context: Context, queue: WorkQueue) {
+    /// Reads one directory's entries into `directory`. `reuse` can hand back an already-scanned
+    /// subdirectory for an entry, which is kept as is instead of being scanned again.
+    static func readDirectory(
+        _ directory: ScanDirectory, at path: String, context: ScanContext,
+        reuse: (BulkEntry) -> ScanDirectory? = { _ in nil }
+    ) -> ReadOutcome {
         let entries: [BulkEntry]
         do {
             entries = try BulkDirectoryReader.read(path)
+        } catch .failed(let code) where code == ENOENT || code == ENOTDIR {
+            return .missing
         } catch {
             directory.state = .unreadable
             context.progress.unreadable.add(1, ordering: .relaxed)
-            return
+            return .unreadable
         }
         directory.state = .read
         context.progress.directories.add(1, ordering: .relaxed)
@@ -150,6 +150,10 @@ nonisolated struct DiskScanner: DiskScanning {
 
             switch entry.kind {
             case .directory:
+                if let kept = reuse(entry) {
+                    directory.subdirectories.append(kept)
+                    continue
+                }
                 let childPath = (path as NSString).appendingPathComponent(entry.name)
                 let ext = (entry.name as NSString).pathExtension.lowercased()
                 if packageExtensions.contains(ext) { flags.insert(.package) }
@@ -168,13 +172,10 @@ nonisolated struct DiskScanner: DiskScanning {
                 if entry.kind == .symlink { flags.insert(.symlink) }
                 var allocated = entry.allocated
                 var apparent = entry.apparent
-                if options.dedupeHardlinks, entry.kind == .file, entry.linkCount > 1 {
-                    let key = InodeKey(device: entry.device, inode: entry.inode)
-                    let isFirst = context.seenInodes.insert(key)
-                    if !isFirst {
-                        allocated = 0
-                        apparent = 0
-                    }
+                if options.dedupeHardlinks, entry.kind == .file, entry.linkCount > 1,
+                   !context.seenInodes.insert(InodeKey(device: entry.device, inode: entry.inode)) {
+                    allocated = 0
+                    apparent = 0
                 }
                 bytes += allocated
                 if entry.kind == .file, max(allocated, apparent) >= options.smallFileThreshold {
@@ -188,15 +189,40 @@ nonisolated struct DiskScanner: DiskScanning {
             }
         }
         context.progress.bytes.add(bytes, ordering: .relaxed)
-        queue.push(discovered)
+        return .read(discovered: discovered)
     }
 
     /// Stops this thread from triggering iCloud downloads of dataless files and folders.
-    private static func disableDatalessMaterialization() {
+    static func disableDatalessMaterialization() {
         _ = setiopolicy_np(
             IOPOL_TYPE_VFS_MATERIALIZE_DATALESS_FILES, IOPOL_SCOPE_THREAD, IOPOL_MATERIALIZE_DATALESS_FILES_OFF
         )
     }
+}
+
+nonisolated struct InodeKey: Hashable, Sendable {
+    let device: Int32
+    let inode: UInt64
+}
+
+/// Hard-linked files seen so far in one scan, so each is counted once.
+nonisolated final class InodeSet: Sendable {
+    private let seen = Mutex<Set<InodeKey>>([])
+
+    init() {}
+
+    /// Records the inode; returns `true` the first time it is seen.
+    func insert(_ key: InodeKey) -> Bool {
+        seen.withLock { $0.insert(key).inserted }
+    }
+}
+
+/// What every directory read in one scan shares.
+nonisolated struct ScanContext: Sendable {
+    let options: ScanOptions
+    let rootDevice: Int32
+    let progress: ScanProgress
+    let seenInodes = InodeSet()
 }
 
 /// A LIFO work stack that knows when every pushed item has been finished.
@@ -205,9 +231,9 @@ nonisolated private final class WorkQueue: @unchecked Sendable {
     private var stack: [(ScanDirectory, String)]
     private var outstanding: Int
 
-    init(first: (ScanDirectory, String)) {
-        stack = [first]
-        outstanding = 1
+    init(items: [(ScanDirectory, String)]) {
+        stack = items
+        outstanding = items.count
     }
 
     /// Blocks until work is available; returns `nil` once everything is done.

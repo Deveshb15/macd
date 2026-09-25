@@ -14,13 +14,16 @@ No terminal, no Homebrew. Cleaning is powered by a bundled copy of
 - **Menu bar readout** — CPU temperature, memory used, and disk free, updated live and
   configurable per-metric.
 - **Free Up Space** — previews what Mole would clean, grouped into plain-language
-  categories with sizes, before anything is deleted. Reports how much space it skipped and why
-  (open apps, admin-only caches).
+  categories with sizes, before anything is deleted. Lists what it skipped and why (open apps,
+  admin-only caches).
 - **Disk Map** — a treemap of your home folder. Colour shows the kind of data (code, agent
   scratch, toolchains, synced files, git, media, documents, cache); a hatch marks space you
   can get back. Mark items, review them, and move them to the Trash or delete permanently,
   each behind rules that refuse to touch anything outside the scan, the home folder itself,
   or macOS's own files.
+- **Instant reopen** — the disk map saves its scan and, next time, shows it immediately and
+  re-reads only the folders macOS's change journal (FSEvents) says have changed. While the
+  window is open it keeps up with changes in the background.
 - **Worth a Look** — the biggest reclaimable folders, stale agent worktrees, and abandoned
   experiments, surfaced automatically.
 - **Low-space alert** — a notification when free space drops below a threshold you set.

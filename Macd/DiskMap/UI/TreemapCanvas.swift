@@ -23,7 +23,10 @@ struct TreemapCanvas: View {
             .contentShape(Rectangle())
             .onContinuousHover { phase in
                 switch phase {
-                case .active(let point): hovered = tile(at: point, in: tiles)?.node
+                case .active(let point):
+                    hovered = tile(at: point, in: tiles)?.node
+                    // The pointer took over from the keyboard.
+                    if hovered != nil, model.selection != nil { model.selection = nil }
                 case .ended: hovered = nil
                 }
             }
@@ -34,10 +37,9 @@ struct TreemapCanvas: View {
             }
             .onTapGesture(count: 1, coordinateSpace: .local) { point in
                 guard let node = tile(at: point, in: tiles)?.node else { return }
+                // Hover shows details, so a plain click needs no selection of its own.
                 if NSEvent.modifierFlags.contains(.control) {
                     model.toggleMark(node)
-                } else {
-                    model.selection = node
                 }
             }
             .contextMenu { contextMenu }

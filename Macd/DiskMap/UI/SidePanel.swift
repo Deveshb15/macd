@@ -8,12 +8,15 @@ struct SidePanel: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                // Hovering a tile shows that tile. Hovering nothing falls back to the
-                // folder currently open, not the last thing that was hovered or clicked —
-                // so moving the pointer off the map always shows where you are, one level
-                // up from whatever's on screen.
+                DiskSection(model: model)
+                // Details follow the pointer, or the keyboard after an arrow key. With
+                // neither, show the folder that's open, one level up from its tiles.
                 if let tree = model.tree {
-                    SelectionSection(model: model, tree: tree, node: hovered ?? model.viewRoot)
+                    if let node = hovered ?? model.selection {
+                        SelectionSection(model: model, tree: tree, node: node)
+                    } else {
+                        FolderSummary(model: model, tree: tree)
+                    }
                 }
                 if let tree = model.tree, !model.worthALook.isEmpty {
                     WorthALookSection(model: model, tree: tree)
@@ -21,7 +24,6 @@ struct SidePanel: View {
                 if let tree = model.tree, !model.marks.isEmpty {
                     MarkedSection(model: model, tree: tree)
                 }
-                DiskSection(model: model)
             }
             .padding(16)
         }
@@ -130,6 +132,30 @@ private struct SelectionSection: View {
 
     private func abbreviated(_ path: String) -> String {
         path.hasPrefix(model.home) ? "~" + path.dropFirst(model.home.count) : path
+    }
+}
+
+/// What's open when nothing is hovered: its size, file count, and how fresh the numbers are.
+private struct FolderSummary: View {
+    let model: DiskMapModel
+    let tree: DiskTree
+
+    var body: some View {
+        let node = model.viewRoot
+        VStack(alignment: .leading, spacing: 6) {
+            SectionTitle(title: node == DiskTree.root ? "Scanned folder" : "Open folder")
+            Text(tree.path(of: node).replacingOccurrences(of: model.home, with: "~"))
+                .font(.callout)
+                .lineLimit(1)
+                .truncationMode(.middle)
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text(Formatters.bytes(tree.allocated[node])).font(.title3.weight(.medium)).monospacedDigit()
+                Text("in \(tree.files[node].formatted()) files").foregroundStyle(.secondary)
+            }
+            Text("Hover a tile to see what it is.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
     }
 }
 
