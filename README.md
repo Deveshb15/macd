@@ -9,6 +9,13 @@ No terminal, no Homebrew. Cleaning is powered by a bundled copy of
 
 ![Disk Map, showing a treemap of a home folder coloured by kind of data, with a Worth a Look panel on the right](assets/disk-map.png)
 
+<p align="center">
+  <img src="assets/menu-bar.png" width="420" alt="The menu bar panel: CPU temperature, memory used of total, disk free of total, then Free Up Space, Disk Map, Settings, and Quit">
+</p>
+
+**Everything stays on your Mac.** mac'd makes no network requests: no accounts, analytics,
+crash reporting, or update checks. Scans, the saved disk map, and cleanup all happen locally.
+
 ## Features
 
 - **Menu bar readout** — CPU temperature, memory used, and disk free, updated live and
@@ -29,6 +36,17 @@ No terminal, no Homebrew. Cleaning is powered by a bundled copy of
 - **Low-space alert** — a notification when free space drops below a threshold you set.
 
 Requires macOS 15 or later. CPU temperature reads Apple Silicon's sensors directly.
+
+## Privacy
+
+- mac'd never connects to the internet. The only links in the app (Mole's source and license,
+  in Settings) open in your browser only when you click them.
+- The bundled Mole is only ever run as `mole clean` and `mole clean --dry-run`, which work on
+  local files. Mole's own update check runs only from its interactive menu, which mac'd never
+  opens.
+- The disk map's saved scan (file names and sizes) lives in
+  `~/Library/Caches/com.devesh.macd/` and never leaves it. Delete that folder any time; the next
+  open just scans again.
 
 ## Install
 
